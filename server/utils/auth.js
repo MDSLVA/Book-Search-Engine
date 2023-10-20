@@ -1,73 +1,32 @@
-// const jwt = require('jsonwebtoken');
-
-// // set token secret and expiration date
-// const secret = 'mysecretsshhhhh';
-// const expiration = '2h';
-
-// module.exports = {
-//   // function for our authenticated routes
-//   authMiddleware: function (req, res, next) {
-//     // allows token to be sent via  req.query or headers
-//     let token = req.query.token || req.headers.authorization;
-
-//     // ["Bearer", "<tokenvalue>"]
-//     if (req.headers.authorization) {
-//       token = token.split(' ').pop().trim();
-//     }
-
-//     if (!token) {
-//       return res.status(400).json({ message: 'You have no token!' });
-//     }
-
-//     // verify token and get user data out of it
-//     try {
-//       const { data } = jwt.verify(token, secret, { maxAge: expiration });
-//       req.user = data;
-//     } catch {
-//       console.log('Invalid token');
-//       return res.status(400).json({ message: 'invalid token!' });
-//     }
-
-//     // send to next endpoint
-//     next();
-//   },
-//   signToken: function ({ username, email, _id }) {
-//     const payload = { username, email, _id };
-
-//     return jwt.sign({ data: payload }, secret, { expiresIn: expiration });
-//   },
-// };
-
-
 const jwt = require('jsonwebtoken');
 
 const secret = 'mysecretsshhhhh';
 const expiration = '2h';
 
-const authMiddleware = async (context) => {
-  const { req } = context;
+module.exports = {
+  authMiddleware: async (resolve, source, args, context, info) => {
+    const { authorization } = context.headers;
+    
+    if (!authorization) {
+      throw new Error('Authorization token is missing.');
+    }
 
-  // Assuming the token is provided in the "Authorization" header
-  const token = req.headers.authorization || '';
+    const token = authorization.replace('Bearer ', '');
 
-  if (!token) {
-    // You can throw an error or return null to indicate no user.
-    return null;
-  }
+    try {
+      const { data } = jwt.verify(token, secret, { maxAge: expiration });
+      context.user = data;
+    } catch (error) {
+      console.log('Invalid token');
+      throw new Error('Invalid token.');
+    }
 
-  try {
-    const { data } = jwt.verify(token, secret);
-    // Add user data to the context for use in your resolvers.
-    context.user = data;
-  } catch (error) {
-    console.log('Invalid token', error);
-    // You can throw an error or return null to indicate an invalid token.
-    return null;
-  }
-
-  return context;
+    // Call the next resolver function
+    const result = await resolve(source, args, context, info);
+    return result;
+  },
+  signToken: ({ username, email, _id }) => {
+    const payload = { username, email, _id };
+    return jwt.sign({ data: payload }, secret, { expiresIn: expiration });
+  },
 };
-
-module.exports = authMiddleware;
-
-

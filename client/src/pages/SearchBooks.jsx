@@ -1,4 +1,6 @@
-import { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useMutation } from '@apollo/client';
+import { SAVE_BOOK } from '../utils/mutations';
 import {
   Container,
   Col,
@@ -8,30 +10,14 @@ import {
   Row
 } from 'react-bootstrap';
 
-import Auth from '../utils/auth';
-import { useMutation, gql } from '@apollo/client';
-import { saveBookIds, getSavedBookIds } from '../utils/localStorage';
+import { getSavedBookIds, saveBookIds } from '../utils/localStorage';
 
 const SearchBooks = () => {
   const [searchedBooks, setSearchedBooks] = useState([]);
   const [searchInput, setSearchInput] = useState('');
   const [savedBookIds, setSavedBookIds] = useState(getSavedBookIds());
 
-  useEffect(() => {
-    return () => saveBookIds(savedBookIds);
-  });
-
-  const SAVE_BOOK_MUTATION = gql`
-    mutation saveBook($bookData: BookInput!) {
-      saveBook(bookData: $bookData) {
-        _id
-        // Include any other fields you want to retrieve after saving the book
-      }
-    }
-  `;
-
-  const [saveBookMutation] = useMutation(SAVE_BOOK_MUTATION);
-
+  const [saveBookMutation] = useMutation(SAVE_BOOK); 
   const handleFormSubmit = async (event) => {
     event.preventDefault();
 
@@ -40,6 +26,7 @@ const SearchBooks = () => {
     }
 
     try {
+      // Fetch book data from the Google Books API
       const response = await searchGoogleBooks(searchInput);
 
       if (!response.ok) {
@@ -48,6 +35,7 @@ const SearchBooks = () => {
 
       const { items } = await response.json();
 
+      // Process the fetched data and set it in state
       const bookData = items.map((book) => ({
         bookId: book.id,
         authors: book.volumeInfo.authors || ['No author to display'],
@@ -63,21 +51,18 @@ const SearchBooks = () => {
     }
   };
 
+  // Function to handle saving a book using the Apollo useMutation hook
   const handleSaveBook = async (bookId) => {
+    // Find the book to save in the searchedBooks state
     const bookToSave = searchedBooks.find((book) => book.bookId === bookId);
-    const token = Auth.loggedIn() ? Auth.getToken() : null;
-
-    if (!token) {
-      return false;
-    }
 
     try {
+      // Execute the SAVE_BOOK mutation using the Apollo useMutation hook
       const { data } = await saveBookMutation({
-        variables: { bookData: { ...bookToSave } },
+        variables: { ...bookToSave },
       });
 
-      console.log(data); // Access the saved data if needed
-
+      // If the mutation is successful, update the saved book IDs in state
       setSavedBookIds([...savedBookIds, data.saveBook._id]);
     } catch (err) {
       console.error(err);
@@ -86,7 +71,7 @@ const SearchBooks = () => {
 
   return (
     <>
-      <div className="text-light bg-dark p-5">
+      <div className='text-light bg-dark p-5'>
         <Container>
           <h1>Search for Books!</h1>
           <Form onSubmit={handleFormSubmit}>
@@ -120,10 +105,14 @@ const SearchBooks = () => {
         <Row>
           {searchedBooks.map((book) => {
             return (
-              <Col md="4" key={book.bookId}>
+              <Col md='4' key={book.bookId}>
                 <Card border='dark'>
                   {book.image ? (
-                    <Card.Img src={book.image} alt={`The cover for ${book.title}`} variant='top' />
+                    <Card.Img
+                      src={book.image}
+                      alt={`The cover for ${book.title}`}
+                      variant='top'
+                    />
                   ) : null}
                   <Card.Body>
                     <Card.Title>{book.title}</Card.Title>
@@ -131,10 +120,15 @@ const SearchBooks = () => {
                     <Card.Text>{book.description}</Card.Text>
                     {Auth.loggedIn() && (
                       <Button
-                        disabled={savedBookIds?.some((savedBookId) => savedBookId === book.bookId)}
+                        disabled={savedBookIds?.some(
+                          (savedBookId) => savedBookId === book.bookId
+                        )}
                         className='btn-block btn-info'
-                        onClick={() => handleSaveBook(book.bookId)}>
-                        {savedBookIds?.some((savedBookId) => savedBookId === book.bookId)
+                        onClick={() => handleSaveBook(book.bookId)}
+                      >
+                        {savedBookIds?.some(
+                          (savedBookId) => savedBookId === book.bookId
+                        )
                           ? 'This book has already been saved!'
                           : 'Save this Book!'}
                       </Button>
