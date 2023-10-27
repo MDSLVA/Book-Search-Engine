@@ -14,7 +14,7 @@ yarn-error.log
 # Ignore dependency directories
 /client/node_modules
 /server/node_modules
-/node_modules
+node_modules/
 
 
 # Ignore system files
