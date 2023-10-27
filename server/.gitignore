@@ -9,7 +9,6 @@ yarn-error.log
 # Ignore build output
 /build
 
-# Ignore dependency directories
 /node_modules
 
 # Ignore system files
