@@ -7,28 +7,35 @@ const resolvers = {
       if (context.user) {
         return User.findOne({ _id: context.user._id });
       }
-      throw new Error('Not logged in.');
+      throw new AuthenticationError('Not logged in.');
     },
   },
+
   Mutation: {
-    addUser: async (_, { input }) => {
+    addUser: async (parent, { input }, context) => {
       const user = await User.create(input);
       const token = signToken(user);
       return { token, user };
     },
-    login: async (parent, args, context) => {
-      const { email, password } = args;
-      const user = await User.findOne({email})
+
+    login: async (parent, { input }, context) => {
+      const { email, password } = input;
+      const user = await User.findOne({email});
+
       if (!user) {
-          throw new AuthenticationError("No user found with that email address.");
+        throw new AuthenticationError("No user found with that email address.");
       }
+
       const correctPassword = await user.isCorrectPassword(password);
+
       if (!correctPassword) {
-          throw new AuthenticationError("Incorrect password.");
+        throw new AuthenticationError("Incorrect password.");
       }
+
       const token = signToken(user);
       return { token, user };
-  },
+    },
+
     saveBook: async (_, { input }, context) => {
       if (context.user) {
         const updatedUser = await User.findOneAndUpdate(
@@ -38,8 +45,9 @@ const resolvers = {
         );
         return updatedUser;
       }
-      throw new Error('You need to be logged in.');
+      throw new AuthenticationError('You need to be logged in.');
     },
+
     removeBook: async (_, { bookId }, context) => {
       if (context.user) {
         const updatedUser = await User.findOneAndUpdate(
@@ -49,7 +57,7 @@ const resolvers = {
         );
         return updatedUser;
       }
-      throw new Error('You need to be logged in.');
+      throw new AuthenticationError('You need to be logged in.');
     },
   },
 };

@@ -8,7 +8,6 @@ const LoginForm = () => {
   const [userFormData, setUserFormData] = useState({ email: '', password: '' });
   const [validated] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
-
   
   const [loginUser] = useMutation(LOGIN_USER);
 
@@ -29,10 +28,10 @@ const LoginForm = () => {
     try {
       // Execute the LOGIN_USER mutation
       const { data } = await loginUser({
-        variables: { ...userFormData },
+        variables: { input: { ...userFormData } }, // Pass data as input object
       });
 
-      const user = data.loginUser;
+      const user = data.login; // Based on your mutation, it seems like it should be data.login
 
       Auth.login(user.token);
     } catch (err) {
@@ -89,3 +88,4 @@ const LoginForm = () => {
 };
 
 export default LoginForm;
+

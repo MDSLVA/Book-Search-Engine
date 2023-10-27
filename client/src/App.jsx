@@ -2,17 +2,20 @@ import './App.css';
 import { Outlet } from 'react-router-dom';
 import { ApolloClient, ApolloProvider, InMemoryCache, createHttpLink } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
-import AuthService from './utils/auth'; // Import the client-side auth.js
 
 import Navbar from './components/Navbar';
+import AuthService from './utils/auth'; // Make sure to update the path
 
 const httpLink = createHttpLink({
-  uri: '/graphql',
+  uri: 'http://localhost:3001/graphql',
 });
 
 // Function to set the authorization header using the user's token
 const authLink = setContext((_, { headers }) => {
-  const userToken = localStorage.getItem("id_token"); // Get the user's token
+  const userToken = AuthService.getToken();
+  console.log("Client-side token:", userToken);
+
+  console.log("Retrieved Token:", userToken); // For debugging purposes
   const authorization = userToken ? `Bearer ${userToken}` : '';
   return {
     headers: {
@@ -27,19 +30,13 @@ const client = new ApolloClient({
   cache: new InMemoryCache(),
 });
 
-
 function App() {
-  
-
   return (
     <ApolloProvider client={client}>
-      <Navbar /> 
+      <Navbar />
       <Outlet />
     </ApolloProvider>
   );
 }
 
 export default App;
-
-
-

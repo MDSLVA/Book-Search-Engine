@@ -1,33 +1,28 @@
 const jwt = require('jsonwebtoken');
-const { AuthenticationError } = require ('@apollo/server');
+const { AuthenticationError } = require('apollo-server-express');
 
-// Your token secret and expiration configuration
 const secret = 'mysecretsshhhhh';
 const expiration = '2h';
 
 module.exports = {
-  // Middleware for authenticated routes
   authMiddleware: function (context) {
-    // Extract the token from the GraphQL context
-    const token = context.req.headers.authorization || '';
+    const token = (context.req && context.req.headers.authorization) || '';
 
-    if (!token) {
-      throw new AuthenticationError('You must be logged in.');
+    if (token) {
+      try {
+        const { data } = jwt.verify(token, secret, { maxAge: expiration });
+        context.user = data;
+      } catch (error) {
+        console.log('Invalid token');
+        throw new AuthenticationError('Invalid token.');
+      }
     }
 
-    try {
-      // Verify the token and get user data out of it
-      const { data } = jwt.verify(token, secret, { maxAge: expiration });
-      context.user = data;
-    } catch (error) {
-      console.log('Invalid token');
-      throw new AuthenticationError('Invalid token.');
-    }
+    return context;
   },
-  // Function to sign a new token
+  
   signToken: function ({ username, email, _id }) {
     const payload = { username, email, _id };
-
     return jwt.sign({ data: payload }, secret, { expiresIn: expiration });
   },
 };

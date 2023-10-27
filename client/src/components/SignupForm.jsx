@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Form, Button, Alert } from 'react-bootstrap';
 import { useMutation } from '@apollo/client';
 import { ADD_USER } from '../utils/mutations';
@@ -27,7 +27,7 @@ const SignupForm = () => {
     try {
       // Execute the ADD_USER mutation
       const { data } = await addUser({
-        variables: { ...userFormData },
+        variables: { input: { ...userFormData } }, // Updated this line
       });
 
       const user = data.addUser;
@@ -36,6 +36,10 @@ const SignupForm = () => {
     } catch (err) {
       console.error(err);
       setShowAlert(true);
+      // Display the server error message if available
+      if (err.graphQLErrors && err.graphQLErrors.length > 0) {
+        console.error('Server Error:', err.graphQLErrors[0].message);
+      }
     }
 
     setUserFormData({
