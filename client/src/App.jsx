@@ -7,7 +7,7 @@ import Navbar from './components/Navbar';
 import AuthService from './utils/auth'; 
 
 const httpLink = createHttpLink({
-  uri: 'http://localhost:3001/graphql',
+  uri: '/graphql',
 });
 
 
