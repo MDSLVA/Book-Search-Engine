@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';  
 import { useQuery, useMutation } from '@apollo/client';
 import {
   Container,
@@ -15,7 +15,14 @@ import { removeBookId } from '../utils/localStorage';
 
 const SavedBooks = () => {
   const { loading, data } = useQuery(GET_ME);
-  const userData = data?.me || {};
+  const [userData, setUserData] = useState(data?.me || {});
+
+
+  useEffect(() => {
+    if (data) {
+      setUserData(data.me);
+    }
+  }, [data]);
 
   const [removeBook] = useMutation(REMOVE_BOOK);
 
@@ -27,17 +34,18 @@ const SavedBooks = () => {
     }
 
     try {
-      const { data } = await removeBook({
+      const { data: responseData } = await removeBook({
         variables: { bookId },
       });
 
-      if (data.removeBook) {
+      if (responseData.removeBook) {
         const updatedSavedBooks = userData.savedBooks.filter((book) => book.bookId !== bookId);
-        // Update the userData with the updated savedBooks array
-        data.me.savedBooks = updatedSavedBooks;
+        setUserData({
+          ...userData,
+          savedBooks: updatedSavedBooks,
+        });
       }
 
-      // Remove the book's id from localStorage
       removeBookId(bookId);
     } catch (err) {
       console.error(err);

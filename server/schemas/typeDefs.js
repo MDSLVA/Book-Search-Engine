@@ -1,4 +1,6 @@
-const typeDefs = `
+const { gql } = require('apollo-server-express');
+
+const typeDefs = gql`
   type User {
     _id: ID!
     username: String!
@@ -23,7 +25,6 @@ const typeDefs = `
 
   type Query {
     me: User
-
   }
 
   type Mutation {
@@ -31,7 +32,6 @@ const typeDefs = `
     addUser(input: UserInput!): Auth
     saveBook(input: BookInput!): User
     removeBook(bookId: String!): User
-    
   }
 
   input LoginInput {

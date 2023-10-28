@@ -22,12 +22,13 @@ const SignupForm = () => {
     if (form.checkValidity() === false) {
       event.preventDefault();
       event.stopPropagation();
+      setValidated(true);  
+      return; 
     }
 
     try {
-      // Execute the ADD_USER mutation
       const { data } = await addUser({
-        variables: { input: { ...userFormData } }, // Updated this line
+        variables: { input: { ...userFormData } },
       });
 
       const user = data.addUser;
@@ -36,7 +37,6 @@ const SignupForm = () => {
     } catch (err) {
       console.error(err);
       setShowAlert(true);
-      // Display the server error message if available
       if (err.graphQLErrors && err.graphQLErrors.length > 0) {
         console.error('Server Error:', err.graphQLErrors[0].message);
       }

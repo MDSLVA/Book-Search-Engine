@@ -23,20 +23,24 @@ const LoginForm = () => {
     if (form.checkValidity() === false) {
       event.preventDefault();
       event.stopPropagation();
+      setValidated(true);  
+      return;  
     }
 
     try {
-      // Execute the LOGIN_USER mutation
+     
       const { data } = await loginUser({
-        variables: { input: { ...userFormData } }, // Pass data as input object
+        variables: { input: { ...userFormData } }, 
       });
 
-      const user = data.login; // Based on your mutation, it seems like it should be data.login
-
+      const user = data.login; 
       Auth.login(user.token);
     } catch (err) {
       console.error(err);
       setShowAlert(true);
+      if (err.graphQLErrors && err.graphQLErrors.length > 0) {
+        console.error('Server Error:', err.graphQLErrors[0].message);
+      }
     }
 
     setUserFormData({

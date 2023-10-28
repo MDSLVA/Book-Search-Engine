@@ -1,38 +1,24 @@
-
-npm-debug.log
-yarn-debug.log
-yarn-error.log
-
-.env
-
-
-
-/node_modules
-
-
-.DS_Store
-Thumbs.db
-
-/client/node_modules
-
-
-/client/dist
-
-# Ignore any local configuration file (if you have one)
-/server/.env
-
-# Ignore Vite temporary files
-node_modules/.vite
-
-# Ignore Vite build output
-/client/.build
-/client/dist
-
-# Ignore ESLint cache
-.eslintcache
-
-# Ignore Visual Studio Code settings
-.vscode
-
-# Ignore any local .log files
+# Logs
+logs
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

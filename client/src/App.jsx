@@ -4,18 +4,18 @@ import { ApolloClient, ApolloProvider, InMemoryCache, createHttpLink } from '@ap
 import { setContext } from '@apollo/client/link/context';
 
 import Navbar from './components/Navbar';
-import AuthService from './utils/auth'; // Make sure to update the path
+import AuthService from './utils/auth'; 
 
 const httpLink = createHttpLink({
   uri: 'http://localhost:3001/graphql',
 });
 
-// Function to set the authorization header using the user's token
+
 const authLink = setContext((_, { headers }) => {
   const userToken = AuthService.getToken();
   console.log("Client-side token:", userToken);
 
-  console.log("Retrieved Token:", userToken); // For debugging purposes
+  console.log("Retrieved Token:", userToken); 
   const authorization = userToken ? `Bearer ${userToken}` : '';
   return {
     headers: {

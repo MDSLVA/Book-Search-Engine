@@ -11,7 +11,7 @@ import { useMutation } from '@apollo/client';
 import Auth from '../utils/auth';
 import { searchGoogleBooks } from '../utils/API';
 import { getSavedBookIds, saveBookIds } from '../utils/localStorage';
-import { SAVE_BOOK } from '../utils/mutations'; // Import the mutation
+import { SAVE_BOOK } from '../utils/mutations'; 
 
 const SearchBooks = () => {
   const [searchedBooks, setSearchedBooks] = useState([]);
@@ -22,8 +22,7 @@ const SearchBooks = () => {
     return () => saveBookIds(savedBookIds);
   });
 
-  const [saveBook] = useMutation(SAVE_BOOK); // Define the saveBook mutation
-
+  const [saveBook] = useMutation(SAVE_BOOK); 
   const handleFormSubmit = async (event) => {
     event.preventDefault();
 

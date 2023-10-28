@@ -6,14 +6,19 @@ const expiration = '2h';
 
 module.exports = {
   authMiddleware: function (context) {
-    const token = (context.req && context.req.headers.authorization) || '';
+    let token = (context.req && context.req.headers.authorization) || '';
+
+    
+    if (token.startsWith('Bearer ')) {
+      token = token.slice(7, token.length).trimLeft();
+    }
 
     if (token) {
       try {
-        const { data } = jwt.verify(token, secret, { maxAge: expiration });
+        const { data } = jwt.verify(token, secret); 
         context.user = data;
       } catch (error) {
-        console.log('Invalid token');
+        console.log('Token verification error:', error.message);
         throw new AuthenticationError('Invalid token.');
       }
     }
